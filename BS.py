@@ -80,7 +80,7 @@ def main():
     Nt = 100
 
     #let step length be 0.5, FDM will give the same result as BS as step length -> 0
-    S0_values = np.linspace(2.0, 8.0, 9)
+    S0_values = np.linspace(2.0, 8.0, 13)
     
     results = []
     errors = []
@@ -120,7 +120,7 @@ def main():
     df = pd.DataFrame(results)
     plt.plot(df['S0'], df['BS Price'], 'b-o', linewidth=2, label='Black-Scholes Formula')
     plt.plot(df['S0'], df['FD Price'], 'r--s', linewidth=2, label='Finite Difference Method')
-    plt.xlabel('Initial Asset Price $S_0$', fontsize=12)
+    plt.xlabel('Initial Asset Price $S_0$ (step length = 0.5)', fontsize=12)
     plt.ylabel('Call Option Price $C(0, S_0)$', fontsize=12)
     plt.title(f'European Call Option Pricing: BS vs FDM\n(K={K}, T={T}, r={r}, σ={sigma})', fontsize=14)
     plt.legend(fontsize=12)
