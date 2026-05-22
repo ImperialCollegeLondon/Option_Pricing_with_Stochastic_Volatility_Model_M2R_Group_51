@@ -22,3 +22,8 @@ dev = [
     "black",         
     "isort",         
 ]
+
+# === 新增：显式声明包的位置，杜绝任何路径识别错误 ===
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["pricing*"]
