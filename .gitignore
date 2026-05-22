@@ -1,3 +1,5 @@
 .DS_Store
 .DS_Store
 .DS_Store
+# 忽略所有 egg-info 文件夹
+*.egg-info/
