@@ -3,7 +3,7 @@ import numpy as np
 import scipy.stats as si
 import matplotlib.pyplot as plt
 import pandas as pd
-
+import scipy
 
 # ===========================================================================
 # Shared Validation
