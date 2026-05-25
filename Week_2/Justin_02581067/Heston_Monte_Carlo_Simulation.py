@@ -1,11 +1,9 @@
-from src.pricing.models import bsm_european, binomial_crr_european, mc_european_gbm
 import sys
 import os
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
-import numpy as np
-import time
 
+from src.pricing.models import bsm_european, binomial_crr_european, mc_european_gbm
 import numpy as np
 import time
 
@@ -21,15 +19,21 @@ def heston_mc_european_call(S0, K, T, r, kappa, theta, omega, rho, v0, n_steps, 
     dt = T/n_steps
     S = np.zeros(n_sims) + S0
     V = np.zeros(n_sims) + v0
+    sqrt_dt = np.sqrt(dt)
+    sqrt_1_minus_rho2 = np.sqrt(1 - rho**2)
 
     for i in range(n_steps):
-        W_t = np.random.normal(0, np.sqrt(dt), n_sims)
-        W_t_tlide = np.random.normal(0, np.sqrt(dt), n_sims)
-        W_t1 = rho * W_t + np.sqrt(1 - rho**2) * W_t_tlide
+        Z_t = np.random.standard_normal(n_sims)
+        Z_t_tilde = np.random.standard_normal(n_sims)
         
-        S = S + r*S*dt + np.sqrt(V)*S*np.sqrt(dt)*W_t
-        V = V + kappa*(theta - V)*dt + omega*np.sqrt(V)*np.sqrt(dt)*W_t1
-    
+        W_S = Z_t
+        W_V = rho * Z_t + sqrt_1_minus_rho2 * Z_t_tilde
+        
+        V_max = np.maximum(V, 0.0)
+        
+        S = S + r * S * dt + np.sqrt(V_max) * S * sqrt_dt * W_S
+        V = V + kappa * (theta - V_max) * dt + omega * np.sqrt(V_max) * sqrt_dt * W_V
+
     payoffs = np.maximum(S - K, 0)
     discount_factor = np.exp(-r*T)
     call_price = discount_factor * np.mean(payoffs)
@@ -52,7 +56,7 @@ if __name__ == "__main__":
 
     # Simulation hyper-parameters
     n_steps = 100
-    n_sims = 100000
+    n_sims = 400000
 
     print(f"Simulating {n_sims:,} paths with {n_steps} steps...")
 
