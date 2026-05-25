@@ -33,7 +33,7 @@ end
 # Unset irrelevant variables.
 deactivate nondestructive
 
-set -gx VIRTUAL_ENV "/Users/JustinJu/Desktop/M2R/Option_Pricing_with_Stochastic_Volatility_Model_M2R_Group_51/.venv"
+set -gx VIRTUAL_ENV "/Users/zkx/Documents/Option_Pricing_with_Stochastic_Volatility_Model_M2R_Group_51/.venv"
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV/bin" $PATH

@@ -9,7 +9,7 @@ alias deactivate 'test $?_OLD_VIRTUAL_PATH != 0 && setenv PATH "$_OLD_VIRTUAL_PA
 # Unset irrelevant variables.
 deactivate nondestructive
 
-setenv VIRTUAL_ENV "/Users/JustinJu/Desktop/M2R/Option_Pricing_with_Stochastic_Volatility_Model_M2R_Group_51/.venv"
+setenv VIRTUAL_ENV "/Users/zkx/Documents/Option_Pricing_with_Stochastic_Volatility_Model_M2R_Group_51/.venv"
 
 set _OLD_VIRTUAL_PATH="$PATH"
 setenv PATH "$VIRTUAL_ENV/bin:$PATH"
