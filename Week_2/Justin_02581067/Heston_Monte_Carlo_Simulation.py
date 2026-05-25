@@ -7,6 +7,7 @@ from src.pricing.models import bsm_european, binomial_crr_european, mc_european_
 import numpy as np
 import time
 
+
 def heston_mc_european_call(S0, K, T, r, kappa, theta, omega, rho, v0, n_steps, n_sims):
     """
     Prices a European Call option under the Heston Stochastic Volatility Model 
