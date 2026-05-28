@@ -1,5 +1,6 @@
 import sys
 import os
+import time
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 from src.pricing import heston_mc_european_call
@@ -49,7 +50,7 @@ def heston_tree_european_call(S0, K, T, r, kappa, theta, omega, rho, V0, n, mv, 
     # Phase 2: State Space Discretization   
     
     dv = (v_max - v_min)/mv
-    dz = (v_max - v_min)/mz
+    dz = (z_max - z_min)/mz
 
     V_nodes = np.linspace(v_min, v_max, mv + 1)
     Z_nodes = np.linspace(z_min, z_max, mz + 1)
@@ -77,10 +78,10 @@ def heston_tree_european_call(S0, K, T, r, kappa, theta, omega, rho, V0, n, mv, 
     Z_drift = (r - 0.5 * V_plus_grid) * dt
     Z_diff = np.sqrt(V_plus_grid * dt)
 
-    v_up = V_nodes + V_draft + V_diff
-    v_down = V_nodes + V_draft - V_diff
-    z_up = Z_nodes + Z_drift + Z_diff
-    z_down = Z_nodes + Z_drift - Z_drift
+    v_up = V_grid + V_draft + V_diff
+    v_down = V_grid + V_draft - V_diff
+    z_up = Z_grid + Z_drift + Z_diff
+    z_down = Z_grid + Z_drift - Z_diff
 
     # Define the Risk-Neutral Probabilities
     q_up_up = 0.25 * (1 + rho)
@@ -126,3 +127,57 @@ def heston_tree_european_call(S0, K, T, r, kappa, theta, omega, rho, V0, n, mv, 
     final_price = get_interpolated_prices(V0, np.log(S0))
     
     return final_price
+
+# ==========================================
+# Main Execution / Testing Block
+# ==========================================
+if __name__ == "__main__":
+    
+    # 1. Define standard Heston test parameters
+    S0 = 100.0     # Initial stock price
+    K = 100.0      # Strike price
+    T = 1.0        # Time to maturity (1 year)
+    r = 0.05       # Risk-free rate (5%)
+    kappa = 2.0    # Mean reversion speed
+    theta = 0.04   # Long-run variance (20% volatility)
+    omega = 0.2    # Volatility of variance
+    rho = -0.5     # Negative correlation (standard for equities)
+    V0 = 0.04      # Initial variance
+    
+    print("==========================================")
+    print(" Heston Model Benchmark: Tree vs MC")
+    print("==========================================")
+    
+    # 2. Run the Tree Method
+    n_tree = 10  # Time steps
+    mv = 70        # Variance grid resolution
+    mz = 70        # Log-price grid resolution
+    
+    print(f"Running Tree Method ({n_tree} steps, {mv}x{mz} grid)...")
+    start_tree = time.time()
+    tree_price = heston_tree_european_call(
+        S0, K, T, r, kappa, theta, omega, rho, V0, 
+        n=n_tree, mv=mv, mz=mz, mode="call"
+    )
+    tree_time = time.time() - start_tree
+    print(f"Tree Price: {tree_price:.5f} (computed in {tree_time:.4f} seconds)")
+
+    # 3. Run the Monte Carlo Method
+    n_steps_mc = 100   # Time steps for Euler discretization
+    n_sims = 100000    # Number of simulated paths
+    
+    print(f"\nRunning Monte Carlo Method ({n_sims} simulations, {n_steps_mc} steps)...")
+    start_mc = time.time()
+    mc_price, mc_se = heston_mc_european_call(
+        S0, K, T, r, kappa, theta, omega, rho, V0, 
+        n_steps=n_steps_mc, n_sims=n_sims
+    )
+    mc_time = time.time() - start_mc
+    print(f"MC Price:   {mc_price:.5f} (computed in {mc_time:.4f} seconds)")
+    print(f"MC Std Err: {mc_se:.5f}")
+    
+    # 4. Compare Results
+    diff = abs(tree_price - mc_price)
+    print("\n==========================================")
+    print(f"Absolute Difference: {diff:.5f}")
+    print("==========================================")
