@@ -286,7 +286,7 @@ def _solve_tridiagonal(lower, diag, upper, rhs):
 # Week 2
 # ===========================================================================
 
-def heston_mc_european_call(S0, K, T, r, kappa, theta, omega, rho, v0, n_steps, n_sims):
+def heston_mc_european_call(S0, K, T, r, kappa, theta, omega, rho, V0, n_steps, n_sims):
     """
     Prices a European Call option under the Heston Stochastic Volatility Model 
     using a vectorized Euler-Maruyama Monte Carlo simulation.
@@ -297,7 +297,7 @@ def heston_mc_european_call(S0, K, T, r, kappa, theta, omega, rho, v0, n_steps, 
     """
     dt = T/n_steps
     S = np.zeros(n_sims) + S0
-    V = np.zeros(n_sims) + v0
+    V = np.zeros(n_sims) + V0
     sqrt_dt = np.sqrt(dt)
     sqrt_1_minus_rho2 = np.sqrt(1 - rho**2)
 
