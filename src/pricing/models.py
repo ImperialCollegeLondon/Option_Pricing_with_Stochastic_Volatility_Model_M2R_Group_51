@@ -441,3 +441,87 @@ def heston_tree_european_call(S0, K, T, r, kappa, theta, omega, rho, V0, n, mv, 
     final_price = get_interpolated_prices(V0, np.log(S0))
     
     return final_price
+
+def heston_semi_analytic(S0, K, T, r, V0, kappa, theta, omega, rho):
+    """
+    Heston (1993) semi-analytic European call option pricing formula.
+    
+    Computes the option price using numerical integration of the characteristic
+    function under the Heston stochastic volatility model.
+    
+    Parameters
+    ----------
+    S0 : float
+        Initial asset price.
+    V0 : float
+        Initial variance.
+    r : float
+        Risk-free interest rate.
+    K : float
+        Strike price.
+    T : float
+        Time to maturity (in years).
+    kappa : float
+        Mean-reversion speed of variance.
+    theta : float
+        Long-term mean of variance.
+    omega : float
+        Volatility of variance (vol of vol).
+    rho : float
+        Correlation between asset price and variance processes.
+    
+    Returns
+    -------
+    price : float
+        European call option price.
+    Notes
+    -----
+    The price is computed as: price = S0 * P1 - K * exp(-r * T) * P2,
+    where P1 and P2 are the risk-neutral probabilities obtained via
+    integration of the characteristic function.
+    
+    The integration is performed using SciPy's `quad` function over
+    the range [1e-6, 200] with an absolute tolerance of 1e-6.
+
+    Alec Wang
+
+    """
+    from scipy.integrate import quad
+
+    def char_func(phi, S0, V0, r, T, kappa, theta, omega, rho, j):
+        """Heston特征函数"""
+        if j == 1:
+            u = 0.5
+            b = kappa - rho * omega
+        else:
+            u = -0.5
+            b = kappa
+
+        a   = kappa * theta
+        x   = np.log(S0)
+        d   = np.sqrt((rho*omega*phi*1j - b)**2 - omega**2*(2*u*phi*1j - phi**2))
+        g   = (b - rho*omega*phi*1j + d) / (b - rho*omega*phi*1j - d)
+
+        C_cf = (r*phi*1j*T +
+                a/omega**2 * ((b - rho*omega*phi*1j + d)*T
+                              - 2*np.log((1 - g*np.exp(d*T))/(1 - g))))
+        D_cf = ((b - rho*omega*phi*1j + d)/omega**2 *
+                (1 - np.exp(d*T)) / (1 - g*np.exp(d*T)))
+
+        return np.exp(C_cf + D_cf*V0 + 1j*phi*x)
+
+    def integrand_P(phi, S0, V0, r, K, T, kappa, theta, omega, rho, j):
+        cf  = char_func(phi, S0, V0, r, T, kappa, theta, omega, rho, j)
+        val = np.real(np.exp(-1j*phi*np.log(K)) * cf / (1j*phi))
+        return val
+
+    P1, _ = quad(integrand_P, 1e-6, 200, args=(S0,V0,r,K,T,kappa,theta,omega,rho,1),
+                 limit=200, epsabs=1e-6)
+    P2, _ = quad(integrand_P, 1e-6, 200, args=(S0,V0,r,K,T,kappa,theta,omega,rho,2),
+                 limit=200, epsabs=1e-6)
+
+    P1 = 0.5 + P1/np.pi
+    P2 = 0.5 + P2/np.pi
+
+    price = S0*P1 - K*np.exp(-r*T)*P2
+    return price
