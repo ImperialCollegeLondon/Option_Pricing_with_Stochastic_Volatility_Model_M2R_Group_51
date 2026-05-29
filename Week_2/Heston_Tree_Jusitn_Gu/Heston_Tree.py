@@ -149,9 +149,9 @@ if __name__ == "__main__":
     print("==========================================")
     
     # 2. Run the Tree Method
-    n_tree = 10  # Time steps
-    mv = 70        # Variance grid resolution
-    mz = 70        # Log-price grid resolution
+    n_tree = 1000  # Time steps
+    mv = 10        # Variance grid resolution
+    mz = 10      # Log-price grid resolution
     
     print(f"Running Tree Method ({n_tree} steps, {mv}x{mz} grid)...")
     start_tree = time.time()
