@@ -47,10 +47,17 @@ def heston_tree_european_call(S0, K, T, r, kappa, theta, omega, rho, V0, n, mv, 
         v_max = v_max_next
         v_min = v_min_next
 
+    v_min = np.maximum(v_min, 0)
+
     # Phase 2: State Space Discretization   
-    
     dv = (v_max - v_min)/mv
     dz = (z_max - z_min)/mz
+
+    print(f"dt = {dt}")
+    print(f"dz = {dv}, z_max, z_min = {z_max}, {z_min}")
+    print(f"dv = {dz}, v_max, v_min = {v_max}, {v_min}")
+    print(f"dv/dt = {dv/dt}")
+    print(f"dz/dt = {dz/dt}")
 
     V_nodes = np.linspace(v_min, v_max, mv + 1)
     Z_nodes = np.linspace(z_min, z_max, mz + 1)
@@ -150,8 +157,8 @@ if __name__ == "__main__":
     
     # 2. Run the Tree Method
     n_tree = 1000  # Time steps
-    mv = 10        # Variance grid resolution
-    mz = 10      # Log-price grid resolution
+    mv = 70        # Variance grid resolution
+    mz = 70      # Log-price grid resolution
     
     print(f"Running Tree Method ({n_tree} steps, {mv}x{mz} grid)...")
     start_tree = time.time()
