@@ -68,7 +68,7 @@ def heston_tree_european_call(S0, K, T, r, kappa, theta, omega, rho, V0, n, mv, 
     U_next = np.zeros((mv+1, mz+1))
 
     if mode == "put":
-        payoff_T = np.maximum(K - np.exp(V_nodes), 0)
+        payoff_T = np.maximum(K - np.exp(Z_nodes), 0)
     elif mode == "call":
         payoff_T = np.maximum(- K + np.exp(Z_nodes), 0)
     else:
