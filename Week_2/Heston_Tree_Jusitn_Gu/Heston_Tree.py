@@ -1,14 +1,15 @@
 import sys
 import os
 import time
-
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
-from src.pricing import heston_mc_european_call
 import numpy as np
 
-def heston_tree_european_call(S0, K, T, r, kappa, theta, omega, rho, V0, n, mv, mz, mode = "call"):
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+# 假设你原本的环境中存在此模块
+from src.pricing import heston_mc_european_call
+
+def heston_tree_european_call(S0, K, T, r, kappa, theta, omega, rho, V0, n, mv, mz, mode="call"):
     """
-        Prices a European Call/Pull option under the Heston Stochastic Volatility Model 
+        Prices a European Call/Put option under the Heston Stochastic Volatility Model 
         using a tree based method.        
 
         S0: Initial stock price
@@ -24,7 +25,6 @@ def heston_tree_european_call(S0, K, T, r, kappa, theta, omega, rho, V0, n, mv, 
         mv: Variance grid resolution
         mz: Log-price grid resolution
         mode: "call" or "put"
-        Justin Ju
     """
     dt = T / n
     
@@ -36,8 +36,18 @@ def heston_tree_european_call(S0, K, T, r, kappa, theta, omega, rho, V0, n, mv, 
         v_min_trunc = np.maximum(v_min, 0)
         v_max_trunc = np.maximum(v_max, 0)
 
-        z_max_next = z_max + (r - v_max / 2) * dt + np.sqrt(v_max_trunc * dt)
-        z_min_next = z_min + (r - v_max / 2) * dt - np.sqrt(v_max_trunc * dt)
+        z_max_cand1 = z_max + (r - 0.5 * v_min_trunc) * dt + np.sqrt(v_min_trunc * dt)
+        z_max_cand2 = z_max + (r - 0.5 * v_max_trunc) * dt + np.sqrt(v_max_trunc * dt)
+        
+        v_star = 1.0 / dt
+        
+        if v_min_trunc < v_star < v_max_trunc:
+            z_max_cand3 = z_max + (r - 0.5 * v_star) * dt + np.sqrt(v_star * dt)
+            z_max_next = max(z_max_cand1, z_max_cand2, z_max_cand3)
+        else:
+            z_max_next = max(z_max_cand1, z_max_cand2)
+
+        z_min_next = z_min + (r - 0.5 * v_max_trunc) * dt - np.sqrt(v_max_trunc * dt)
 
         v_max_next = v_max + kappa * (theta - v_max_trunc) * dt + omega * np.sqrt(v_max_trunc * dt)
         v_min_next = v_min + kappa * (theta - v_min_trunc) * dt - omega * np.sqrt(v_min_trunc * dt) 
@@ -50,12 +60,12 @@ def heston_tree_european_call(S0, K, T, r, kappa, theta, omega, rho, V0, n, mv, 
     v_min = np.maximum(v_min, 0)
 
     # Phase 2: State Space Discretization   
-    dv = (v_max - v_min)/mv
-    dz = (z_max - z_min)/mz
+    dv = (v_max - v_min) / mv
+    dz = (z_max - z_min) / mz
 
     print(f"dt = {dt}")
-    print(f"dz = {dv}, z_max, z_min = {z_max}, {z_min}")
-    print(f"dv = {dz}, v_max, v_min = {v_max}, {v_min}")
+    print(f"dz = {dz}, z_max, z_min = {z_max}, {z_min}")
+    print(f"dv = {dv}, v_max, v_min = {v_max}, {v_min}")
     print(f"dv/dt = {dv/dt}")
     print(f"dz/dt = {dz/dt}")
 
@@ -65,19 +75,17 @@ def heston_tree_european_call(S0, K, T, r, kappa, theta, omega, rho, V0, n, mv, 
     V_grid, Z_grid = np.meshgrid(V_nodes, Z_nodes, indexing='ij')
     V_plus_grid = np.maximum(V_grid, 0)
 
-    U_next = np.zeros((mv+1, mz+1))
+    U_next = np.zeros((mv + 1, mz + 1))
 
     if mode == "put":
         payoff_T = np.maximum(K - np.exp(Z_nodes), 0)
     elif mode == "call":
-        payoff_T = np.maximum(- K + np.exp(Z_nodes), 0)
+        payoff_T = np.maximum(-K + np.exp(Z_nodes), 0)
     else:
-        raise(NotImplemented
-              (f"Please choose mode between 'call' and 'put', {mode} is not implemented")
-               )
+        raise NotImplementedError(f"Please choose mode between 'call' and 'put', {mode} is not implemented")
 
-    for i in range(mv+1):
-        U_next[i,:] = payoff_T
+    for i in range(mv + 1):
+        U_next[i, :] = payoff_T
     
     # Calculate the deterministic Drift & Diffusion for the whole grid once
     V_draft = kappa * (theta - V_plus_grid) * dt
@@ -156,9 +164,9 @@ if __name__ == "__main__":
     print("==========================================")
     
     # 2. Run the Tree Method
-    n_tree = 1000  # Time steps
+    n_tree = 10  # Time steps
     mv = 70        # Variance grid resolution
-    mz = 70      # Log-price grid resolution
+    mz = 70        # Log-price grid resolution
     
     print(f"Running Tree Method ({n_tree} steps, {mv}x{mz} grid)...")
     start_tree = time.time()
