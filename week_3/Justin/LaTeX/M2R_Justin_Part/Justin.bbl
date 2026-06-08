@@ -1,0 +1,47 @@
+\begin{thebibliography}{6}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Black(1976)]{black1976}
+F.~Black.
+\newblock Studies of stock price volatility changes.
+\newblock In \emph{Proceedings of the 1976 Business and Economics Statistics
+  Section, American Statistical Association}, pages 177--181, 1976.
+
+\bibitem[Black and Scholes(1973)]{black1973}
+F.~Black and M.~Scholes.
+\newblock The pricing of options and corporate liabilities.
+\newblock \emph{Journal of Political Economy}, 81\penalty0 (3):\penalty0
+  637--654, 1973.
+
+\bibitem[Heston(1993)]{heston1993}
+S.~L. Heston.
+\newblock A closed-form solution for options with stochastic volatility.
+\newblock \emph{The Review of Financial Studies}, 6\penalty0 (2):\penalty0
+  327--343, 1993.
+
+\bibitem[Kingma and Ba(2015)]{kingma2015}
+D.~P. Kingma and J.~Ba.
+\newblock Adam: A method for stochastic optimization.
+\newblock \emph{3rd International Conference on Learning Representations (ICLR
+  2015), San Diego, CA, USA}, 2015.
+\newblock arXiv:1412.6980.
+
+\bibitem[Leshno et~al.(1993)Leshno, Lin, Pinkus, and Schocken]{leshno1993}
+M.~Leshno, V.~Y. Lin, A.~Pinkus, and S.~Schocken.
+\newblock Multilayer feedforward networks with a nonpolynomial activation
+  function can approximate any function.
+\newblock \emph{Neural Networks}, 6\penalty0 (6):\penalty0 861--867, 1993.
+
+\bibitem[Sirignano and Spiliopoulos(2018)]{sirignano2018}
+J.~Sirignano and K.~Spiliopoulos.
+\newblock Dgm: A deep learning algorithm for solving partial differential
+  equations.
+\newblock \emph{Journal of Computational Physics}, 375:\penalty0 1339--1364,
+  2018.
+\newblock https://doi.org/10.1016/j.jcp.2018.08.029.
+
+\end{thebibliography}
